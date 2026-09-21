@@ -35,6 +35,6 @@ struct MainPopoverView: View {
                 }
             }
         }
-        .frame(width: 410, height: 520)
+        .frame(width: 480, height: 520)
     }
 }

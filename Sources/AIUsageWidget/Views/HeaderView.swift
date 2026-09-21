@@ -117,21 +117,19 @@ struct HeaderView: View {
             .padding(.top, 10)
             
             // Tab Navigation Pill Selector
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 2) {
-                    ForEach(AppTab.allCases) { tab in
-                        GlassSegmentButton(
-                            title: tab.rawValue,
-                            icon: tab.iconName,
-                            brandImage: tab.brandImage,
-                            isSelected: selectedTab == tab
-                        ) {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
-                                selectedTab = tab
-                            }
+            HStack(spacing: 2) {
+                ForEach(AppTab.allCases) { tab in
+                    GlassSegmentButton(
+                        title: tab.rawValue,
+                        icon: tab.iconName,
+                        brandImage: tab.brandImage,
+                        isSelected: selectedTab == tab
+                    ) {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
+                            selectedTab = tab
                         }
-                        .frame(minWidth: tab == .antigravity ? 86 : 62)
                     }
+                    .frame(minWidth: tab == .antigravity ? 86 : 62)
                 }
             }
             .padding(3)
