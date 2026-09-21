@@ -18,7 +18,7 @@ A lightweight, local macOS menu bar app for tracking real-time rate limits, usag
 
 - **Claude Code Limits**: Reads live session percentages, weekly quotas, and reset countdowns by querying the local `claude` CLI (`-p /usage`), combined with historical usage metrics from `~/.claude/stats-cache.json`.
 - **OpenAI Codex Limits**: Queries live account status and rate limit reset credits via `codex app-server --stdio` JSON-RPC (with fallback to `~/.codex/sessions/*.jsonl`), extracts subscription tier from `~/.codex/auth.json`, and parses historical 14-day token breakdown per model from `~/.codex/state_5.sqlite`.
-- **Google Antigravity Limits**: Reads model-family 5-hour and weekly quotas from `agy /usage`, with a running Antigravity desktop app or IDE as a local fallback, and parses local conversation databases under `~/.gemini` for token history.
+- **Google Antigravity Limits**: Reads model-family 5-hour and weekly quotas from the local service of a running Antigravity desktop app or IDE, and parses local conversation databases under `~/.gemini` for token history.
 - **14-Day Activity Visualization**: Stacked daily token chart comparing Claude Code, Codex, and Antigravity.
 - **Model Breakdown**: Provider-qualified token totals for every locally observed model.
 - **Auto & Manual Refresh**: Configurable auto-refresh intervals (1, 5, or 15 minutes) or instant manual refresh.
@@ -56,9 +56,9 @@ TokenBar inspects local CLI environment state and local application stores:
    - **Database**: Opens `~/.codex/state_5.sqlite` using SQLite3 in read-only mode (`threads` table) to calculate total sessions, 7-day token totals, and historical model token usage.
 
 3. **Google Antigravity Integration (`AntigravityDataReader.swift`)**
-   - **Live Status**: Runs `agy -p /usage --output-format json` for the authoritative quota report. If unavailable, it connects to the authenticated localhost service of a running Antigravity app or IDE. It does not copy or persist local credentials.
+   - **Live Status**: Connects to the authenticated localhost service of an already-running Antigravity app or IDE. Refresh never launches `agy`, which can open a browser login and steal focus when authentication is needed. It does not copy or persist local credentials.
    - **History**: Opens Antigravity and Antigravity CLI conversation databases under `~/.gemini` in read-only mode, deduplicates responses, and recovers modern per-turn timestamps from the `steps` table.
-   - **Availability**: Historical activity remains available while Antigravity is closed. Live quota refresh uses a signed-in `agy` CLI or a running desktop app/IDE.
+   - **Availability**: Historical activity remains available while Antigravity is closed. Live quota refresh requires a running, signed-in desktop app/IDE.
 
 ---
 

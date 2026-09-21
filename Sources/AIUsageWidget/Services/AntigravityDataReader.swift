@@ -4,9 +4,13 @@ import SQLite3
 final class AntigravityDataReader {
     static let shared = AntigravityDataReader()
 
-    private let historyRoots: [String]
+    typealias CommandRunner = (String, [String], TimeInterval, Int) -> String?
 
-    init(historyRoots: [String]? = nil) {
+    private let historyRoots: [String]
+    private let commandRunner: CommandRunner
+
+    init(historyRoots: [String]? = nil, commandRunner: CommandRunner? = nil) {
+        self.commandRunner = commandRunner ?? Self.execute
         self.historyRoots = historyRoots ?? [
             NSString(string: "~/.gemini/antigravity/conversations").expandingTildeInPath,
             NSString(string: "~/.gemini/antigravity-cli/conversations").expandingTildeInPath
@@ -30,8 +34,8 @@ final class AntigravityDataReader {
     }
 
     private func fetchLiveQuota(into data: inout AntigravityUsageData) {
-        if fetchCLIQuota(into: &data) { return }
-
+        // Poll only an already-running local service. Launching agy can start
+        // an interactive OAuth login and bring the browser to the foreground.
         let candidates = discoverServers()
         guard !candidates.isEmpty else { return }
 
@@ -57,52 +61,6 @@ final class AntigravityDataReader {
             }
         }
         data.liveError = lastError
-    }
-
-    @discardableResult
-    private func fetchCLIQuota(into data: inout AntigravityUsageData) -> Bool {
-        guard let binary = findAgyBinary(),
-              let output = run(
-                binary,
-                arguments: ["-p", "/usage", "--output-format", "json"],
-                timeout: 30,
-                maximumBytes: 2_000_000
-              ),
-              let root = try? JSONSerialization.jsonObject(with: Data(output.utf8)) as? [String: Any],
-              string(root["status"])?.uppercased() == "SUCCESS",
-              let command = root["command"] as? [String: Any],
-              let commandData = command["data"] as? [String: Any],
-              let groups = commandData["groups"] as? [[String: Any]] else { return false }
-
-        var windows: [AntigravityQuotaWindow] = []
-        for group in groups {
-            let family = normalizedFamily(string(group["name"]) ?? "Antigravity")
-            for bucket in group["buckets"] as? [[String: Any]] ?? [] {
-                let cadence = quotaCadence(
-                    [string(bucket["name"]), string(bucket["id"]), string(bucket["window"])]
-                        .compactMap { $0 }.joined(separator: " ")
-                )
-                guard let remaining = number(bucket["remaining_fraction"]) else { continue }
-                let remainingPercent = max(0, min(100, remaining * 100))
-                windows.append(AntigravityQuotaWindow(
-                    family: family,
-                    cadence: cadence,
-                    remainingPercent: remainingPercent,
-                    resetText: quotaResetText(
-                        remainingFraction: remaining,
-                        resetTime: string(bucket["reset_time"]),
-                        fallback: string(bucket["description"])
-                    )
-                ))
-            }
-        }
-        guard !windows.isEmpty else { return false }
-        data.quotaWindows = windows.sorted(by: quotaSort)
-        data.hasLiveStatus = true
-        data.liveSource = "agy CLI"
-        data.liveError = ""
-        data.quotaFetchedAt = Date()
-        return true
     }
 
     private func discoverServers() -> [ServerProcess] {
@@ -500,15 +458,6 @@ final class AntigravityDataReader {
         return "Refreshes in \(totalMinutes / 60)h \(totalMinutes % 60)m"
     }
 
-    private func findAgyBinary() -> String? {
-        let candidates = [
-            NSString(string: "~/.local/bin/agy").expandingTildeInPath,
-            "/opt/homebrew/bin/agy",
-            "/usr/local/bin/agy"
-        ]
-        return candidates.first { FileManager.default.isExecutableFile(atPath: $0) }
-    }
-
     private func string(_ value: Any?) -> String? {
         if let value = value as? String, !value.isEmpty { return value }
         return nil
@@ -534,9 +483,19 @@ final class AntigravityDataReader {
         timeout: TimeInterval,
         maximumBytes: Int = 1_000_000
     ) -> String? {
+        commandRunner(executable, arguments, timeout, maximumBytes)
+    }
+
+    private static func execute(
+        _ executable: String,
+        arguments: [String],
+        timeout: TimeInterval,
+        maximumBytes: Int
+    ) -> String? {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: executable)
         process.arguments = arguments
+        process.standardInput = FileHandle.nullDevice
         process.standardError = FileHandle.nullDevice
         let pipe = Pipe()
         process.standardOutput = pipe

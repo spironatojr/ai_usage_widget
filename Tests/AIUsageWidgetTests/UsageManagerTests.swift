@@ -240,13 +240,29 @@ final class UsageManagerTests: XCTestCase {
         XCTAssertEqual(points.last?.totalTokens, 123)
     }
 
+    func testAntigravityRefreshWithoutRunningAppDoesNotLaunchLogin() {
+        var commands: [String] = []
+        let reader = AntigravityDataReader(historyRoots: [], commandRunner: { executable, _, _, _ in
+            commands.append(executable)
+            return ""
+        })
+
+        // Repeated timer refreshes must remain passive when no app is running.
+        for _ in 0..<2 {
+            let data = reader.fetchUsageData()
+            XCTAssertFalse(data.hasLiveStatus)
+            XCTAssertEqual(data.liveError, "Open Antigravity to read live quotas")
+        }
+        XCTAssertEqual(commands, ["/bin/ps", "/bin/ps"])
+    }
+
     func testAntigravityLocalIntegrationWhenRequested() throws {
         guard ProcessInfo.processInfo.environment["ANTIGRAVITY_INTEGRATION"] == "1" else {
             throw XCTSkip("Set ANTIGRAVITY_INTEGRATION=1 while Antigravity is running")
         }
         let data = AntigravityDataReader.shared.fetchUsageData()
         XCTAssertTrue(data.hasLiveStatus, data.liveError)
-        XCTAssertEqual(data.liveSource, "agy CLI")
+        XCTAssertTrue(["Antigravity", "Antigravity IDE"].contains(data.liveSource))
         XCTAssertFalse(data.quotaWindows.isEmpty)
         XCTAssertTrue(data.quotaWindows.contains { $0.cadence == .weekly })
         XCTAssertTrue(data.quotaWindows.contains { $0.cadence == .fiveHour })
