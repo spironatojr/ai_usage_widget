@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:ai_usage_widget}",
+            "name": "Debug AIUsageWidget",
+            "target": "AIUsageWidget",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug AIUsageWidget"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:ai_usage_widget}",
+            "name": "Release AIUsageWidget",
+            "target": "AIUsageWidget",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release AIUsageWidget"
+        }
+    ]
+}
