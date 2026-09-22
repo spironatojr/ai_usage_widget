@@ -68,12 +68,12 @@ struct HeaderView: View {
                     VStack(alignment: .leading, spacing: 0) {
                         Text("TokenBar")
                             .font(.system(size: 13, weight: .bold, design: .rounded))
-                            .foregroundColor(.primary)
+                            .foregroundColor(MacTheme.textPrimary)
                             .lineLimit(1)
                         
                         Text("macOS Usage Monitor")
                             .font(.system(size: 8.5, weight: .medium))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(MacTheme.textSecondary)
                             .lineLimit(1)
                     }
                     
@@ -99,14 +99,14 @@ struct HeaderView: View {
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4.5)
-                    .foregroundColor(headerState.isRefreshHovered ? .primary : .secondary)
+                    .foregroundColor(headerState.isRefreshHovered ? MacTheme.textPrimary : MacTheme.textSecondary)
                     .background(
                         Capsule()
-                            .fill(Color.primary.opacity(headerState.isRefreshHovered ? 0.1 : 0.05))
+                            .fill(MacTheme.controlBackground.opacity(headerState.isRefreshHovered ? 1 : 0.72))
                     )
                     .overlay(
                         Capsule()
-                            .strokeBorder(Color.primary.opacity(0.1), lineWidth: 0.5)
+                            .strokeBorder(MacTheme.border, lineWidth: 1)
                     )
                 }
                 .buttonStyle(.plain)
@@ -139,15 +139,16 @@ struct HeaderView: View {
             .padding(3)
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(Color(NSColor.controlBackgroundColor).opacity(0.3))
+                    .fill(MacTheme.navigationBackground)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .strokeBorder(Color.white.opacity(0.08), lineWidth: 0.5)
+                    .strokeBorder(MacTheme.border, lineWidth: 1)
             )
             .padding(.horizontal, 10)
             .padding(.bottom, 6)
         }
+        .background(MacTheme.navigationBackground)
         .onChange(of: manager.isRefreshing) { refreshing in
             if refreshing {
                 startSpinning()

@@ -11,12 +11,12 @@ struct CodexDetailView: View {
                 
                 Text("Local history · last 30 days · usage dated by event, excluding cache reads")
                     .font(.system(size: 10))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(MacTheme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
                 if !manager.codexData.historyDiagnostic.isEmpty {
                     Text(manager.codexData.historyDiagnostic)
                         .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(MacTheme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
@@ -51,7 +51,7 @@ struct CodexDetailView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("CODEX MODELS USED")
                         .font(.system(size: 10, weight: .bold, design: .monospaced))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(MacTheme.textSecondary)
                         .tracking(0.5)
                     
                     VStack(spacing: 6) {
@@ -60,13 +60,13 @@ struct CodexDetailView: View {
                                 HStack {
                                     Text(model.modelName)
                                         .font(.system(size: 11, weight: .bold))
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(MacTheme.textPrimary)
                                     
                                     Spacer()
                                     
                                     Text("\(model.sessionCount) sessions")
                                         .font(.system(size: 10, weight: .medium, design: .monospaced))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(MacTheme.textSecondary)
                                     
                                     Text(UsageManager.formatTokens(model.totalTokens))
                                         .font(.system(size: 11, weight: .bold, design: .monospaced))
@@ -81,7 +81,7 @@ struct CodexDetailView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("DAILY BREAKDOWN HISTORY")
                         .font(.system(size: 10, weight: .bold, design: .monospaced))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(MacTheme.textSecondary)
                         .tracking(0.5)
                     
                     VStack(spacing: 6) {
@@ -90,13 +90,13 @@ struct CodexDetailView: View {
                                 HStack {
                                     Text(item.date)
                                         .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(MacTheme.textPrimary)
                                     
                                     Spacer()
                                     
                                     Text("\(item.sessionCount) session\(item.sessionCount == 1 ? "" : "s")")
                                         .font(.system(size: 10, weight: .medium))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(MacTheme.textSecondary)
                                     
                                     Text(UsageManager.formatTokens(item.tokensUsed))
                                         .font(.system(size: 11, weight: .bold, design: .monospaced))

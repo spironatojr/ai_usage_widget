@@ -8,7 +8,7 @@ struct TodayCardView: View {
             HStack {
                 Text("LIVE AGENT SUBSCRIPTION STATUS")
                     .font(.system(size: 10, weight: .bold, design: .monospaced))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(MacTheme.textSecondary)
                     .tracking(0.5)
                 
                 Spacer()
@@ -33,9 +33,8 @@ struct ClaudeStatusCard: View {
     let claude: ClaudeUsageData
     
     var body: some View {
-        GlowingBrandCard(
+        BrandedGraphiteCard(
             brandGradient: MacTheme.claudeGradient,
-            borderColor: MacTheme.claudePrimary,
             cornerRadius: 14
         ) {
             VStack(alignment: .leading, spacing: 12) {
@@ -52,7 +51,7 @@ struct ClaudeStatusCard: View {
                         
                         Text("Claude Agent")
                             .font(.system(size: 13, weight: .bold, design: .rounded))
-                            .foregroundColor(.primary)
+                            .foregroundColor(MacTheme.textPrimary)
                     }
                     
                     Spacer()
@@ -72,27 +71,27 @@ struct ClaudeStatusCard: View {
                 
                 Text("Account-wide limits · all devices")
                     .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(MacTheme.textSecondary)
 
                 quotaRow("5-hour window", percentage: claude.sessionUsedPct, reset: claude.sessionReset)
-                Divider().opacity(0.2)
+                GraphiteDivider()
                 quotaRow("Current week (all models)", percentage: claude.weekAllModelsPct, reset: claude.weekAllModelsReset)
 
                 if let percentage = claude.weekFablePct {
-                    Divider().opacity(0.2)
+                    GraphiteDivider()
                     quotaRow("Current week (\(claude.weekModelLabel))", percentage: percentage, reset: claude.weekFableReset)
                 }
 
                 if !claude.liveError.isEmpty {
                     Text(claude.liveError)
                         .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(MacTheme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 if let fetchedAt = claude.quotaFetchedAt {
                     Text("Updated \(fetchedAt, style: .time)")
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(MacTheme.textTertiary)
                 }
             }
         }
@@ -103,7 +102,7 @@ struct ClaudeStatusCard: View {
         if let percentage {
             ProgressBarRow(
                 label: label,
-                valueText: String(format: "%.0f%% used", percentage),
+                valueText: String(format: "%.0f%%", percentage),
                 progressPct: percentage,
                 resetText: reset.isEmpty ? nil : "resets \(reset)",
                 accentGradient: progressGradient(usedPct: percentage)
@@ -114,7 +113,7 @@ struct ClaudeStatusCard: View {
                 Spacer()
                 Text("Unavailable")
                     .font(.system(size: 10))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(MacTheme.textSecondary)
             }
         }
     }
@@ -127,9 +126,8 @@ struct CodexStatusCard: View {
     let codex: CodexUsageData
     
     var body: some View {
-        GlowingBrandCard(
+        BrandedGraphiteCard(
             brandGradient: MacTheme.codexGradient,
-            borderColor: MacTheme.codexPrimary,
             cornerRadius: 14
         ) {
             VStack(alignment: .leading, spacing: 12) {
@@ -146,7 +144,7 @@ struct CodexStatusCard: View {
                         
                         Text("OpenAI Codex")
                             .font(.system(size: 13, weight: .bold, design: .rounded))
-                            .foregroundColor(.primary)
+                            .foregroundColor(MacTheme.textPrimary)
                     }
                     
                     Spacer()
@@ -170,27 +168,27 @@ struct CodexStatusCard: View {
                         if !codex.activeModel.isEmpty {
                             Label(codex.activeModel, systemImage: "sparkles")
                                 .font(.system(size: 9.5, weight: .medium))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(MacTheme.textSecondary)
                         }
                         if !codex.activeModel.isEmpty && !codex.accountEmail.isEmpty {
                             Text("•")
                                 .font(.system(size: 9))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(MacTheme.textTertiary)
                         }
                         if !codex.accountEmail.isEmpty {
                             Text(codex.accountEmail)
                                 .font(.system(size: 9.5, weight: .medium))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(MacTheme.textSecondary)
                         }
                     }
                 }
                 
-                Divider().opacity(0.2)
+                GraphiteDivider()
 
                 if let usedPct = codex.fiveHourLimitUsedPct {
                     ProgressBarRow(
                         label: "5-hour limit",
-                        valueText: String(format: "%.0f%% used", usedPct),
+                        valueText: String(format: "%.0f%%", usedPct),
                         progressPct: usedPct,
                         resetText: codex.fiveHourLimitResetText,
                         accentGradient: progressGradient(usedPct: usedPct)
@@ -202,16 +200,16 @@ struct CodexStatusCard: View {
                         Spacer()
                         Text("No snapshot recorded")
                             .font(.system(size: 9, weight: .medium))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(MacTheme.textSecondary)
                     }
                 }
 
-                Divider().opacity(0.2)
+                GraphiteDivider()
 
                 if let usedPct = codex.weeklyLimitUsedPct {
                     ProgressBarRow(
                         label: "Weekly limit",
-                        valueText: String(format: "%.0f%% used", usedPct),
+                        valueText: String(format: "%.0f%%", usedPct),
                         progressPct: usedPct,
                         resetText: codex.weeklyLimitResetText,
                         accentGradient: progressGradient(usedPct: usedPct)
@@ -223,11 +221,11 @@ struct CodexStatusCard: View {
                         Spacer()
                         Text("No snapshot recorded")
                             .font(.system(size: 9, weight: .medium))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(MacTheme.textSecondary)
                     }
                 }
 
-                Divider().opacity(0.2)
+                GraphiteDivider()
 
                 // Resets Section
                 VStack(alignment: .leading, spacing: 6) {
@@ -244,7 +242,7 @@ struct CodexStatusCard: View {
                                 : "Unavailable"
                         )
                             .font(.system(size: 10, weight: .bold, design: .monospaced))
-                            .foregroundColor(codex.hasResetsAvailable ? MacTheme.codexPrimary : .secondary)
+                            .foregroundColor(codex.hasResetsAvailable ? MacTheme.codexPrimary : MacTheme.textSecondary)
                     }
 
                     ForEach(codex.resets) { item in
@@ -257,13 +255,13 @@ struct CodexStatusCard: View {
                             Spacer()
                             Text("Expires \(item.expiryText)")
                                 .font(.system(size: 9, weight: .medium, design: .monospaced))
-                                .foregroundColor(.secondary)
+                                .foregroundColor(MacTheme.textSecondary)
                         }
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4.5)
                         .background(
                             RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                .fill(Color.primary.opacity(0.04))
+                                .fill(MacTheme.controlBackground.opacity(0.7))
                         )
                     }
                     
@@ -280,13 +278,13 @@ struct CodexStatusCard: View {
                                 Spacer()
                                 Text("Expiry not provided")
                                     .font(.system(size: 9))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(MacTheme.textSecondary)
                             }
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4.5)
                             .background(
                                 RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                    .fill(Color.primary.opacity(0.04))
+                                    .fill(MacTheme.controlBackground.opacity(0.7))
                             )
                         }
                     }
@@ -309,26 +307,26 @@ struct ProgressBarRow: View {
         VStack(alignment: .leading, spacing: 5) {
             HStack(spacing: 6) {
                 Text(label)
-                    .font(.system(size: 10.5, weight: .semibold))
-                    .foregroundColor(.primary)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundColor(MacTheme.textPrimary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                 
                 Spacer(minLength: 4)
                 
                 Text(valueText)
-                    .font(.system(size: 10.5, weight: .bold, design: .monospaced))
+                    .font(.system(size: 12, weight: .bold, design: .monospaced))
                     .foregroundColor(progressTextColor(usedPct: progressPct))
                     .lineLimit(1)
             }
             
-            ModernProgressBar(valuePct: progressPct, accentGradient: accentGradient, height: 6)
+            ModernProgressBar(valuePct: progressPct, accentGradient: accentGradient, height: 8)
             
             if let reset = resetText, !reset.isEmpty {
                 HStack {
                     Label(reset, systemImage: "clock")
-                        .font(.system(size: 8.5, weight: .medium, design: .monospaced))
-                        .foregroundColor(.secondary)
+                        .font(.system(size: 9.5, weight: .medium, design: .monospaced))
+                        .foregroundColor(MacTheme.textSecondary)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                     Spacer(minLength: 0)
@@ -341,9 +339,9 @@ struct ProgressBarRow: View {
 // MARK: - Helper Gradients
 
 func progressGradient(usedPct: Double) -> LinearGradient {
-    if usedPct >= 85.0 {
+    if usedPct >= 90.0 {
         return LinearGradient(colors: [MacTheme.danger, Color.red], startPoint: .leading, endPoint: .trailing)
-    } else if usedPct >= 60.0 {
+    } else if usedPct >= 70.0 {
         return LinearGradient(colors: [MacTheme.warning, Color.orange], startPoint: .leading, endPoint: .trailing)
     } else {
         return LinearGradient(colors: [MacTheme.success, MacTheme.codexPrimary], startPoint: .leading, endPoint: .trailing)
@@ -351,9 +349,9 @@ func progressGradient(usedPct: Double) -> LinearGradient {
 }
 
 func progressTextColor(usedPct: Double) -> Color {
-    if usedPct >= 85.0 {
+    if usedPct >= 90.0 {
         return MacTheme.danger
-    } else if usedPct >= 60.0 {
+    } else if usedPct >= 70.0 {
         return MacTheme.warning
     } else {
         return MacTheme.success

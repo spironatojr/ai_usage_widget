@@ -54,20 +54,20 @@ struct ModelBreakdownView: View {
                 HStack {
                     Text("ALL MODELS BREAKDOWN")
                         .font(.system(size: 10, weight: .bold, design: .monospaced))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(MacTheme.textSecondary)
                         .tracking(0.5)
                     
                     Spacer()
                     
                     Text("\(combinedModels.count) Models Tracked")
                         .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(MacTheme.textSecondary)
                 }
                 .padding(.horizontal, 2)
                 
                 Text("Model totals from this Mac only · Claude & Codex: last 30 days")
                     .font(.system(size: 10))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(MacTheme.textSecondary)
 
                 let grandTotal = max(combinedModels.map { $0.tokens }.reduce(0, +), 1)
                 
@@ -81,12 +81,12 @@ struct ModelBreakdownView: View {
                                     // Rank Badge
                                     Text("#\(index + 1)")
                                         .font(.system(size: 10, weight: .bold, design: .monospaced))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(MacTheme.textSecondary)
                                         .frame(width: 24, alignment: .leading)
                                     
                                     Text(item.modelName)
                                         .font(.system(size: 12, weight: .bold))
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(MacTheme.textPrimary)
                                     
                                     Spacer()
                                     
@@ -105,12 +105,12 @@ struct ModelBreakdownView: View {
                                         .foregroundColor(item.primaryColor)
                                 }
                                 
-                                ModernProgressBar(valuePct: percentage, accentGradient: item.gradient, height: 5)
+                                ModernProgressBar(valuePct: percentage, accentGradient: item.gradient, height: 7)
                                 
                                 HStack {
                                     Text(String(format: "%.1f%% of total usage", percentage))
                                         .font(.system(size: 9.5, weight: .medium, design: .monospaced))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(MacTheme.textSecondary)
                                     Spacer()
                                 }
                             }

@@ -4,6 +4,22 @@ import AppKit
 // MARK: - Modern macOS Design System Tokens
 
 enum MacTheme {
+    // Graphite Frost surfaces. These intentionally stay opaque so content behind
+    // the menu-bar window never changes the contrast of the interface.
+    static let canvasBackground = Color(red: 0.086, green: 0.094, blue: 0.114)
+    static let navigationBackground = Color(red: 0.125, green: 0.137, blue: 0.165)
+    static let cardBackground = Color(red: 0.141, green: 0.157, blue: 0.188)
+    static let raisedCardBackground = Color(red: 0.161, green: 0.180, blue: 0.220)
+    static let controlBackground = Color(red: 0.196, green: 0.216, blue: 0.255)
+    static let border = Color(red: 0.227, green: 0.251, blue: 0.298)
+    static let separator = Color(red: 0.204, green: 0.227, blue: 0.271)
+    static let progressTrack = Color(red: 0.224, green: 0.247, blue: 0.286)
+
+    // High-contrast typography used throughout the fixed dark presentation.
+    static let textPrimary = Color(red: 0.957, green: 0.965, blue: 0.973)
+    static let textSecondary = Color(red: 0.702, green: 0.729, blue: 0.776)
+    static let textTertiary = Color(red: 0.522, green: 0.553, blue: 0.608)
+
     // Brand Gradients & Colors
     static let claudePrimary = Color(red: 0.95, green: 0.48, blue: 0.22)
     static let claudeSecondary = Color(red: 0.88, green: 0.32, blue: 0.18)
@@ -33,17 +49,12 @@ enum MacTheme {
     static let accentPurple = Color(red: 0.58, green: 0.36, blue: 0.94)
     
     // Status Colors
-    static let success = Color(red: 0.20, green: 0.80, blue: 0.48)
-    static let warning = Color(red: 0.98, green: 0.65, blue: 0.15)
-    static let danger = Color(red: 0.95, green: 0.30, blue: 0.30)
-    
-    // Card Background & Glass
-    static let cardBackground = Color(NSColor.controlBackgroundColor).opacity(0.45)
-    static let glassBorder = Color.white.opacity(0.12)
-    static let darkGlassBorder = Color.white.opacity(0.06)
+    static let success = Color(red: 0.259, green: 0.827, blue: 0.573)
+    static let warning = Color(red: 0.961, green: 0.725, blue: 0.259)
+    static let danger = Color(red: 1.000, green: 0.420, blue: 0.420)
 }
 
-// MARK: - Custom Glass Card Container
+// MARK: - Graphite Card Container
 
 struct GlassCard<Content: View>: View {
     let cornerRadius: CGFloat
@@ -61,34 +72,25 @@ struct GlassCard<Content: View>: View {
             .padding(padding)
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .fill(Color(NSColor.controlBackgroundColor).opacity(0.4))
+                    .fill(MacTheme.cardBackground)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .strokeBorder(
-                        LinearGradient(
-                            colors: [Color.white.opacity(0.18), Color.white.opacity(0.04)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 0.75
-                    )
+                    .strokeBorder(MacTheme.border, lineWidth: 1)
             )
-            .shadow(color: Color.black.opacity(0.08), radius: 6, x: 0, y: 3)
+            .shadow(color: Color.black.opacity(0.22), radius: 8, x: 0, y: 4)
     }
 }
 
-// MARK: - Glowing Brand Card
+// MARK: - Branded Graphite Card
 
-struct GlowingBrandCard<Content: View>: View {
+struct BrandedGraphiteCard<Content: View>: View {
     let brandGradient: LinearGradient
-    let borderColor: Color
     let cornerRadius: CGFloat
     let content: Content
     
-    init(brandGradient: LinearGradient, borderColor: Color, cornerRadius: CGFloat = 14, @ViewBuilder content: () -> Content) {
+    init(brandGradient: LinearGradient, cornerRadius: CGFloat = 14, @ViewBuilder content: () -> Content) {
         self.brandGradient = brandGradient
-        self.borderColor = borderColor
         self.cornerRadius = cornerRadius
         self.content = content()
     }
@@ -97,26 +99,21 @@ struct GlowingBrandCard<Content: View>: View {
         content
             .padding(14)
             .background(
-                ZStack {
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .fill(Color(NSColor.controlBackgroundColor).opacity(0.35))
-                    
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .fill(brandGradient.opacity(0.06))
-                }
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(MacTheme.raisedCardBackground)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .strokeBorder(
-                        LinearGradient(
-                            colors: [borderColor.opacity(0.45), borderColor.opacity(0.12)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 1
-                    )
+                    .strokeBorder(MacTheme.border, lineWidth: 1)
             )
-            .shadow(color: borderColor.opacity(0.08), radius: 8, x: 0, y: 4)
+            .overlay(alignment: .leading) {
+                Capsule()
+                    .fill(brandGradient)
+                    .frame(width: 3)
+                    .padding(.vertical, 13)
+                    .padding(.leading, 6)
+            }
+            .shadow(color: Color.black.opacity(0.25), radius: 10, x: 0, y: 5)
     }
 }
 
@@ -167,13 +164,13 @@ struct ModernProgressBar: View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
                 Capsule()
-                    .fill(Color.primary.opacity(0.08))
+                    .fill(MacTheme.progressTrack)
                 
                 if clampedPct > 0 {
                     Capsule()
                         .fill(accentGradient)
                         .frame(width: geo.size.width * CGFloat(clampedPct / 100.0))
-                        .shadow(color: Color.primary.opacity(0.15), radius: 2, x: 0, y: 1)
+                        .shadow(color: Color.black.opacity(0.18), radius: 2, x: 0, y: 1)
                 }
             }
         }
@@ -217,20 +214,20 @@ struct GlassSegmentButton: View {
             .padding(.horizontal, 6)
             .padding(.vertical, 4.5)
             .frame(maxWidth: .infinity)
-            .foregroundColor(isSelected ? .primary : .secondary)
+            .foregroundColor(isSelected ? MacTheme.textPrimary : MacTheme.textSecondary)
             .background(
                 ZStack {
                     if isSelected {
                         RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .fill(Color(NSColor.controlAccentColor).opacity(0.2))
+                            .fill(MacTheme.controlBackground)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                    .strokeBorder(Color(NSColor.controlAccentColor).opacity(0.4), lineWidth: 0.75)
+                                    .strokeBorder(MacTheme.accentBlue.opacity(0.75), lineWidth: 1)
                             )
-                            .shadow(color: Color(NSColor.controlAccentColor).opacity(0.15), radius: 4, x: 0, y: 2)
+                            .shadow(color: Color.black.opacity(0.18), radius: 4, x: 0, y: 2)
                     } else if buttonState.isHovered {
                         RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .fill(Color.primary.opacity(0.06))
+                            .fill(MacTheme.controlBackground.opacity(0.75))
                     }
                 }
             )
@@ -241,5 +238,15 @@ struct GlassSegmentButton: View {
                 buttonState.isHovered = hovering
             }
         }
+    }
+}
+
+// MARK: - High-contrast Divider
+
+struct GraphiteDivider: View {
+    var body: some View {
+        Rectangle()
+            .fill(MacTheme.separator)
+            .frame(height: 1)
     }
 }

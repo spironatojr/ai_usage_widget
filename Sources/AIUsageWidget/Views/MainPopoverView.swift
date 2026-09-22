@@ -7,8 +7,7 @@ struct MainPopoverView: View {
         VStack(spacing: 0) {
             HeaderView(manager: manager, selectedTab: $manager.selectedTab)
             
-            Divider()
-                .opacity(0.3)
+            GraphiteDivider()
             
             // Tab View Body
             Group {
@@ -36,5 +35,8 @@ struct MainPopoverView: View {
             }
         }
         .frame(width: 480, height: 520)
+        .foregroundColor(MacTheme.textPrimary)
+        .background(MacTheme.canvasBackground)
+        .preferredColorScheme(.dark)
     }
 }

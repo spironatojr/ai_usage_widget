@@ -11,21 +11,21 @@ struct ClaudeDetailView: View {
                 
                 Text("History below is from this Mac only. Account limits above include all devices using the same subscription.")
                     .font(.system(size: 10))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(MacTheme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Text("Last \(manager.claudeData.historyDays) days · reconstructed from local sessions")
                     .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(MacTheme.textSecondary)
                 if let updatedAt = manager.claudeData.historyUpdatedAt {
                     Text("History updated \(updatedAt, style: .time)")
                         .font(.system(size: 9))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(MacTheme.textTertiary)
                 }
                 if !manager.claudeData.historyDiagnostic.isEmpty {
                     Text(manager.claudeData.historyDiagnostic)
                         .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(MacTheme.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
@@ -52,7 +52,7 @@ struct ClaudeDetailView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("CLAUDE MODELS OVERVIEW")
                         .font(.system(size: 10, weight: .bold, design: .monospaced))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(MacTheme.textSecondary)
                         .tracking(0.5)
                     
                     VStack(spacing: 6) {
@@ -66,7 +66,7 @@ struct ClaudeDetailView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("RECENT DAILY ACTIVITY")
                         .font(.system(size: 10, weight: .bold, design: .monospaced))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(MacTheme.textSecondary)
                         .tracking(0.5)
                     
                     VStack(spacing: 6) {
@@ -75,7 +75,7 @@ struct ClaudeDetailView: View {
                                 HStack {
                                     Text(act.date)
                                         .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(MacTheme.textPrimary)
                                     Spacer()
                                     
                                     HStack(spacing: 4) {
@@ -84,20 +84,20 @@ struct ClaudeDetailView: View {
                                             .foregroundColor(MacTheme.claudePrimary)
                                         Text("msgs")
                                             .font(.system(size: 10, weight: .medium))
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(MacTheme.textSecondary)
                                     }
                                     
                                     Text("•")
                                         .font(.system(size: 10))
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(MacTheme.textTertiary)
                                     
                                     HStack(spacing: 4) {
                                         Text("\(act.toolCallCount)")
                                             .font(.system(size: 10, weight: .bold, design: .monospaced))
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(MacTheme.textSecondary)
                                         Text("tools")
                                             .font(.system(size: 10, weight: .medium))
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(MacTheme.textSecondary)
                                     }
                                 }
                             }

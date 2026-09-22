@@ -15,7 +15,7 @@ struct SettingsView: View {
                     
                     Text("Settings & Configuration")
                         .font(.system(size: 14, weight: .bold, design: .rounded))
-                        .foregroundColor(.primary)
+                        .foregroundColor(MacTheme.textPrimary)
                 }
                 .padding(.horizontal, 2)
 
@@ -24,17 +24,17 @@ struct SettingsView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("MENU BAR DISPLAY")
                             .font(.system(size: 10, weight: .bold, design: .monospaced))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(MacTheme.textSecondary)
                             .tracking(0.5)
 
                         Toggle(isOn: $manager.showQuotaInMenuBar) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Show live quota percentages in Menu Bar")
                                     .font(.system(size: 11, weight: .medium))
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(MacTheme.textPrimary)
                                 Text("Shows weekly percent used for Claude, Codex, and Antigravity")
                                     .font(.system(size: 9.5, weight: .regular))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(MacTheme.textSecondary)
                             }
                         }
                         .toggleStyle(.switch)
@@ -46,13 +46,13 @@ struct SettingsView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("REFRESH INTERVAL")
                             .font(.system(size: 10, weight: .bold, design: .monospaced))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(MacTheme.textSecondary)
                             .tracking(0.5)
 
                         HStack {
                             Text("Auto-refresh background interval")
                                 .font(.system(size: 11, weight: .medium))
-                                .foregroundColor(.primary)
+                                .foregroundColor(MacTheme.textPrimary)
                             
                             Spacer()
 
@@ -74,7 +74,7 @@ struct SettingsView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("LOCAL DATA SOURCES")
                             .font(.system(size: 10, weight: .bold, design: .monospaced))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(MacTheme.textSecondary)
                             .tracking(0.5)
 
                         SourceRow(
@@ -108,7 +108,7 @@ struct SettingsView: View {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("APPLICATION")
                             .font(.system(size: 10, weight: .bold, design: .monospaced))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(MacTheme.textSecondary)
                             .tracking(0.5)
 
                         HStack {
@@ -117,7 +117,7 @@ struct SettingsView: View {
                                     .font(.system(size: 11, weight: .bold))
                                 Text("Version \(appVersion) (Native SwiftUI & SQLite)")
                                     .font(.system(size: 9.5, weight: .medium, design: .monospaced))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(MacTheme.textSecondary)
                             }
                             
                             Spacer()

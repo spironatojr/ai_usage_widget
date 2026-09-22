@@ -23,13 +23,13 @@ struct DetailCard: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
                         .font(.system(size: 9.5, weight: .semibold))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(MacTheme.textSecondary)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                     
                     Text(value)
                         .font(.system(size: 14, weight: .bold, design: .monospaced))
-                        .foregroundColor(.primary)
+                        .foregroundColor(MacTheme.textPrimary)
                         .lineLimit(1)
                         .minimumScaleFactor(0.75)
                 }
@@ -49,7 +49,7 @@ struct ClaudeModelRow: View {
                 HStack {
                     Text(model.modelName)
                         .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(MacTheme.textPrimary)
                     
                     Spacer()
                     
@@ -76,16 +76,16 @@ struct LabelBadge: View {
         HStack(spacing: 3) {
             Text("\(label):")
                 .font(.system(size: 9, weight: .medium))
-                .foregroundColor(.secondary)
+                .foregroundColor(MacTheme.textSecondary)
             Text(val)
                 .font(.system(size: 9, weight: .bold, design: .monospaced))
-                .foregroundColor(.primary)
+                .foregroundColor(MacTheme.textPrimary)
         }
         .padding(.horizontal, 6)
         .padding(.vertical, 2)
         .background(
             RoundedRectangle(cornerRadius: 4, style: .continuous)
-                .fill(Color.primary.opacity(0.04))
+                .fill(MacTheme.controlBackground.opacity(0.7))
         )
     }
 }
@@ -101,10 +101,10 @@ struct SourceRow: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(name)
                         .font(.system(size: 11, weight: .bold))
-                        .foregroundColor(.primary)
+                        .foregroundColor(MacTheme.textPrimary)
                     Text(path)
                         .font(.system(size: 9.5, weight: .medium, design: .monospaced))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(MacTheme.textSecondary)
                 }
                 Spacer()
                 

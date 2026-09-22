@@ -13,7 +13,7 @@ struct DailyChartView: View {
             HStack {
                 Text("DAILY TOKEN TRENDS (14 DAYS)")
                     .font(.system(size: 10, weight: .bold, design: .monospaced))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(MacTheme.textSecondary)
                     .tracking(0.5)
                 
                 Spacer()
@@ -28,14 +28,14 @@ struct DailyChartView: View {
             
             Text("Token history from this Mac only; remote sessions are not included.")
                 .font(.system(size: 10))
-                .foregroundColor(.secondary)
+                .foregroundColor(MacTheme.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
 
             if manager.combinedDailyPoints.isEmpty {
                 GlassCard {
                     Text("No activity recorded yet.")
                         .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(MacTheme.textSecondary)
                         .frame(height: 120)
                         .frame(maxWidth: .infinity)
                 }
@@ -50,7 +50,7 @@ struct DailyChartView: View {
                                 HStack(spacing: 8) {
                                     Text(hovered.formattedDate)
                                         .font(.system(size: 11, weight: .bold, design: .monospaced))
-                                        .foregroundColor(.primary)
+                                        .foregroundColor(MacTheme.textPrimary)
                                     
                                     Spacer()
                                     
@@ -85,7 +85,7 @@ struct DailyChartView: View {
                                 .padding(.vertical, 5)
                                 .background(
                                     RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                        .fill(Color.primary.opacity(0.06))
+                                        .fill(MacTheme.controlBackground.opacity(0.7))
                                 )
                                 .transition(.opacity.combined(with: .scale(scale: 0.95)))
                             } else {
@@ -96,7 +96,7 @@ struct DailyChartView: View {
                                         .font(.system(size: 10, weight: .medium))
                                     Spacer()
                                 }
-                                .foregroundColor(.secondary)
+                                .foregroundColor(MacTheme.textSecondary)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 5)
                             }
@@ -153,7 +153,7 @@ struct DailyChartView: View {
                                     
                                     Text(point.formattedDate)
                                         .font(.system(size: 8.5, weight: isHovered ? .bold : .medium, design: .monospaced))
-                                        .foregroundColor(isHovered ? .primary : .secondary)
+                                        .foregroundColor(isHovered ? MacTheme.textPrimary : MacTheme.textSecondary)
                                         .lineLimit(1)
                                         .minimumScaleFactor(0.7)
                                 }
@@ -161,7 +161,7 @@ struct DailyChartView: View {
                                 .padding(.vertical, 3)
                                 .background(
                                     RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                        .fill(isHovered ? Color.primary.opacity(0.08) : Color.clear)
+                                        .fill(isHovered ? MacTheme.controlBackground : Color.clear)
                                 )
                                 .onHover { hovering in
                                     withAnimation(.easeInOut(duration: 0.15)) {
@@ -195,7 +195,7 @@ struct LegendItem: View {
                 .frame(width: 7, height: 7)
             Text(label)
                 .font(.system(size: 10, weight: .semibold))
-                .foregroundColor(.secondary)
+                .foregroundColor(MacTheme.textSecondary)
         }
     }
 }

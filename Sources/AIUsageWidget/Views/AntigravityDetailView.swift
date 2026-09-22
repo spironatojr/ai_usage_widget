@@ -4,9 +4,8 @@ struct AntigravityStatusCard: View {
     let antigravity: AntigravityUsageData
 
     var body: some View {
-        GlowingBrandCard(
+        BrandedGraphiteCard(
             brandGradient: MacTheme.antigravityGradient,
-            borderColor: MacTheme.antigravityPrimary,
             cornerRadius: 14
         ) {
             VStack(alignment: .leading, spacing: 10) {
@@ -28,7 +27,7 @@ struct AntigravityStatusCard: View {
                         .padding(.horizontal, 7)
                         .padding(.vertical, 3)
                         .background(MacTheme.antigravityPrimary.opacity(0.18))
-                        .foregroundColor(antigravity.hasLiveStatus ? MacTheme.antigravityPrimary : .secondary)
+                        .foregroundColor(antigravity.hasLiveStatus ? MacTheme.antigravityPrimary : MacTheme.textSecondary)
                         .clipShape(Capsule())
                 }
 
@@ -41,7 +40,7 @@ struct AntigravityStatusCard: View {
                         if !antigravity.accountEmail.isEmpty { Text(antigravity.accountEmail) }
                     }
                     .font(.system(size: 9.5, weight: .medium))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(MacTheme.textSecondary)
                 }
 
                 if antigravity.quotaWindows.isEmpty {
@@ -51,18 +50,18 @@ struct AntigravityStatusCard: View {
                         Spacer()
                         Text(antigravity.liveError)
                             .font(.system(size: 9, weight: .medium))
-                            .foregroundColor(.secondary)
+                            .foregroundColor(MacTheme.textSecondary)
                             .multilineTextAlignment(.trailing)
                     }
                 } else {
                     ForEach(Array(antigravity.quotaWindows.enumerated()), id: \.element.id) { index, window in
-                        if index > 0 { Divider().opacity(0.2) }
+                        if index > 0 { GraphiteDivider() }
                         if let remaining = window.remainingPercent {
                             let used = 100 - remaining
                             ProgressBarRow(
                                 label: "\(window.family) \(window.cadence.rawValue.lowercased())",
-                                valueText: String(format: "%.2f%% remaining", remaining),
-                                progressPct: remaining,
+                                valueText: String(format: "%.0f%%", used),
+                                progressPct: used,
                                 resetText: window.resetText.isEmpty ? nil : window.resetText,
                                 accentGradient: progressGradient(usedPct: used)
                             )
@@ -73,7 +72,7 @@ struct AntigravityStatusCard: View {
                                 Spacer()
                                 Text("Unavailable")
                                     .font(.system(size: 9, weight: .medium))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(MacTheme.textSecondary)
                             }
                         }
                     }
@@ -117,7 +116,7 @@ struct AntigravityDetailView: View {
                 if !manager.antigravityData.historyDiagnostic.isEmpty {
                     Label(manager.antigravityData.historyDiagnostic, systemImage: manager.antigravityData.historyIsPartial ? "exclamationmark.triangle" : "info.circle")
                         .font(.system(size: 9.5, weight: .medium))
-                        .foregroundColor(manager.antigravityData.historyIsPartial ? MacTheme.warning : .secondary)
+                        .foregroundColor(manager.antigravityData.historyIsPartial ? MacTheme.warning : MacTheme.textSecondary)
                 }
 
                 sectionTitle("ANTIGRAVITY MODELS")
@@ -154,7 +153,7 @@ struct AntigravityDetailView: View {
                                 Spacer()
                                 Text("\(item.sessionCount) session\(item.sessionCount == 1 ? "" : "s")")
                                     .font(.system(size: 10, weight: .medium))
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(MacTheme.textSecondary)
                                 Text(UsageManager.formatTokens(item.tokensUsed))
                                     .font(.system(size: 11, weight: .bold, design: .monospaced))
                                     .foregroundColor(MacTheme.antigravityPrimary)
@@ -171,7 +170,7 @@ struct AntigravityDetailView: View {
     private func sectionTitle(_ title: String) -> some View {
         Text(title)
             .font(.system(size: 10, weight: .bold, design: .monospaced))
-            .foregroundColor(.secondary)
+            .foregroundColor(MacTheme.textSecondary)
             .tracking(0.5)
     }
 }
