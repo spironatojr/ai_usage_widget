@@ -1,7 +1,29 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
-echo "🔨 Building AI Usage Widget in Release mode..."
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$PROJECT_ROOT"
+
+VERSION_FILE="$PROJECT_ROOT/VERSION"
+BUILD_FILE="$PROJECT_ROOT/BUILD_NUMBER"
+SEMVER_PATTERN='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'
+
+[[ -f "$VERSION_FILE" ]] || { echo "❌ Missing VERSION file" >&2; exit 1; }
+[[ -f "$BUILD_FILE" ]] || { echo "❌ Missing BUILD_NUMBER file" >&2; exit 1; }
+
+APP_VERSION="$(tr -d '[:space:]' < "$VERSION_FILE")"
+APP_BUILD="$(tr -d '[:space:]' < "$BUILD_FILE")"
+
+[[ "$APP_VERSION" =~ $SEMVER_PATTERN ]] || {
+    echo "❌ VERSION must use stable SemVer format MAJOR.MINOR.PATCH" >&2
+    exit 1
+}
+[[ "$APP_BUILD" =~ ^[1-9][0-9]*$ ]] || {
+    echo "❌ BUILD_NUMBER must be a positive integer" >&2
+    exit 1
+}
+
+echo "🔨 Building AI Usage Widget $APP_VERSION ($APP_BUILD) in Release mode..."
 swift build -c release
 
 APP_NAME="AI Usage Tracker.app"
@@ -20,7 +42,7 @@ cp ".build/release/AIUsageWidget" "$MacOS_DIR/AIUsageWidget"
 cp assets/*.png "$RESOURCES_DIR/" 2>/dev/null || true
 
 echo "📄 Creating Info.plist..."
-cat << 'EOF' > "$CONTENTS_DIR/Info.plist"
+cat << EOF > "$CONTENTS_DIR/Info.plist"
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -36,9 +58,9 @@ cat << 'EOF' > "$CONTENTS_DIR/Info.plist"
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.4.2</string>
+    <string>$APP_VERSION</string>
     <key>CFBundleVersion</key>
-    <string>7</string>
+    <string>$APP_BUILD</string>
     <key>LSMinimumSystemVersion</key>
     <string>13.0</string>
     <key>LSUIElement</key>

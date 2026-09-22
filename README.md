@@ -92,6 +92,26 @@ open "build/AI Usage Tracker.app"
 
 To install system-wide, move `build/AI Usage Tracker.app` into your `/Applications` folder.
 
+### Versioning
+
+TokenBar follows [Semantic Versioning 2.0.0](https://semver.org/). The public app version lives in `VERSION` using the stable `MAJOR.MINOR.PATCH` format, while `BUILD_NUMBER` contains Apple's monotonically increasing internal build number.
+
+Use the version helper before preparing a release:
+
+```bash
+# 1.4.2 -> 1.4.3 and build 7 -> 8
+./scripts/bump_version.sh patch
+
+# Other supported increments
+./scripts/bump_version.sh minor
+./scripts/bump_version.sh major
+
+# Or set an explicit stable SemVer version
+./scripts/bump_version.sh 2.0.0
+```
+
+`build_app.sh` validates both files and writes them to `CFBundleShortVersionString` and `CFBundleVersion` in the generated app bundle.
+
 ---
 
 ## License
