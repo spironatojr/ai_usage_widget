@@ -69,36 +69,54 @@ struct SettingsView: View {
                     }
                 }
 
-                // Local Data Sources Status Group
+                // Live service availability
                 GlassCard(cornerRadius: 12, padding: 12) {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("LOCAL DATA SOURCES")
+                        Text("LIVE SERVICES")
                             .font(.system(size: 10, weight: .bold, design: .monospaced))
                             .foregroundColor(MacTheme.textSecondary)
                             .tracking(0.5)
 
-                        SourceRow(
+                        StatusRow(
+                            name: "Google Antigravity Live Quotas",
+                            detail: antigravityLiveDetail,
+                            isAvailable: manager.antigravityData.hasLiveStatus,
+                            availableText: "Live",
+                            unavailableText: "Offline"
+                        )
+                    }
+                }
+
+                // Local history source availability
+                GlassCard(cornerRadius: 12, padding: 12) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("LOCAL HISTORY SOURCES")
+                            .font(.system(size: 10, weight: .bold, design: .monospaced))
+                            .foregroundColor(MacTheme.textSecondary)
+                            .tracking(0.5)
+
+                        StatusRow(
                             name: "Codex Local Sessions",
-                            path: "~/.codex/sessions",
-                            exists: sourceExists("~/.codex/sessions")
+                            detail: "~/.codex/sessions",
+                            isAvailable: sourceExists("~/.codex/sessions")
                         )
 
-                        SourceRow(
+                        StatusRow(
                             name: "Claude Local Sessions",
-                            path: "~/.claude/projects",
-                            exists: sourceExists("~/.claude/projects")
+                            detail: "~/.claude/projects",
+                            isAvailable: sourceExists("~/.claude/projects")
                         )
 
-                        SourceRow(
+                        StatusRow(
                             name: "Antigravity Conversations",
-                            path: "~/.gemini/antigravity/conversations",
-                            exists: sourceExists("~/.gemini/antigravity/conversations")
+                            detail: "~/.gemini/antigravity/conversations",
+                            isAvailable: sourceExists("~/.gemini/antigravity/conversations")
                         )
 
-                        SourceRow(
+                        StatusRow(
                             name: "Antigravity CLI Conversations",
-                            path: "~/.gemini/antigravity-cli/conversations",
-                            exists: sourceExists("~/.gemini/antigravity-cli/conversations")
+                            detail: "~/.gemini/antigravity-cli/conversations",
+                            isAvailable: sourceExists("~/.gemini/antigravity-cli/conversations")
                         )
                     }
                 }
@@ -115,7 +133,7 @@ struct SettingsView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("AI Usage Tracker for macOS")
                                     .font(.system(size: 11, weight: .bold))
-                                Text("Version \(appVersion) (Native SwiftUI & SQLite)")
+                                Text("\(appVersionText) · Native SwiftUI & SQLite")
                                     .font(.system(size: 9.5, weight: .medium, design: .monospaced))
                                     .foregroundColor(MacTheme.textSecondary)
                             }
@@ -157,7 +175,21 @@ struct SettingsView: View {
         )
     }
 
-    private var appVersion: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Development"
+    private var antigravityLiveDetail: String {
+        if manager.antigravityData.hasLiveStatus {
+            let source = manager.antigravityData.liveSource
+            return source.isEmpty ? "Local quota service responding" : "\(source) local quota service"
+        }
+        return manager.antigravityData.liveError.isEmpty
+            ? "Open Antigravity to read live quotas"
+            : manager.antigravityData.liveError
+    }
+
+    private var appVersionText: String {
+        guard let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String else {
+            return "Development"
+        }
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
+        return build.map { "Version \(version) (build \($0))" } ?? "Version \(version)"
     }
 }

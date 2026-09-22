@@ -90,10 +90,26 @@ struct LabelBadge: View {
     }
 }
 
-struct SourceRow: View {
+struct StatusRow: View {
     let name: String
-    let path: String
-    let exists: Bool
+    let detail: String
+    let isAvailable: Bool
+    let availableText: String
+    let unavailableText: String
+
+    init(
+        name: String,
+        detail: String,
+        isAvailable: Bool,
+        availableText: String = "Available",
+        unavailableText: String = "Not Found"
+    ) {
+        self.name = name
+        self.detail = detail
+        self.isAvailable = isAvailable
+        self.availableText = availableText
+        self.unavailableText = unavailableText
+    }
     
     var body: some View {
         GlassCard(cornerRadius: 10, padding: 8) {
@@ -102,24 +118,25 @@ struct SourceRow: View {
                     Text(name)
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(MacTheme.textPrimary)
-                    Text(path)
+                    Text(detail)
                         .font(.system(size: 9.5, weight: .medium, design: .monospaced))
                         .foregroundColor(MacTheme.textSecondary)
+                        .lineLimit(2)
                 }
                 Spacer()
                 
                 HStack(spacing: 4) {
-                    Image(systemName: exists ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
+                    Image(systemName: isAvailable ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                         .font(.system(size: 12, weight: .semibold))
-                    Text(exists ? "Connected" : "Missing")
+                    Text(isAvailable ? availableText : unavailableText)
                         .font(.system(size: 9.5, weight: .bold, design: .monospaced))
                 }
-                .foregroundColor(exists ? MacTheme.success : MacTheme.warning)
+                .foregroundColor(isAvailable ? MacTheme.success : MacTheme.warning)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 3)
                 .background(
                     Capsule()
-                        .fill((exists ? MacTheme.success : MacTheme.warning).opacity(0.15))
+                        .fill((isAvailable ? MacTheme.success : MacTheme.warning).opacity(0.15))
                 )
             }
         }

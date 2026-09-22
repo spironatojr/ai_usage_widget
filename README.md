@@ -92,25 +92,25 @@ open "build/AI Usage Tracker.app"
 
 To install system-wide, move `build/AI Usage Tracker.app` into your `/Applications` folder.
 
-### Versioning
+### Automated Versioning and Releases
 
-TokenBar follows [Semantic Versioning 2.0.0](https://semver.org/). The public app version lives in `VERSION` using the stable `MAJOR.MINOR.PATCH` format, while `BUILD_NUMBER` contains Apple's monotonically increasing internal build number.
+TokenBar follows [Semantic Versioning 2.0.0](https://semver.org/). The public app version lives in `VERSION` using the stable `MAJOR.MINOR.PATCH` format, while `BUILD_NUMBER` contains Apple's monotonically increasing internal build number. The Settings screen reads both values from the generated app bundle.
 
-Use the version helper before preparing a release:
+Pushes to `main` run the Semantic Release workflow. It inspects Conventional Commits since the latest `vMAJOR.MINOR.PATCH` tag, calculates the next version, increments the build, builds and signs the app, commits the version files, creates the tag, and publishes a zipped app bundle as a GitHub release.
 
 ```bash
-# 1.4.2 -> 1.4.3 and build 7 -> 8
-./scripts/bump_version.sh patch
-
-# Other supported increments
-./scripts/bump_version.sh minor
-./scripts/bump_version.sh major
-
-# Or set an explicit stable SemVer version
-./scripts/bump_version.sh 2.0.0
+fix: correct quota status      # patch: 1.4.2 -> 1.4.3
+feat: add another provider     # minor: 1.4.2 -> 1.5.0
+feat!: change history format   # major: 1.4.2 -> 2.0.0
 ```
 
-`build_app.sh` validates both files and writes them to `CFBundleShortVersionString` and `CFBundleVersion` in the generated app bundle.
+`docs:`, `test:`, `ci:`, `build:`, `chore:`, and `style:` commits do not create a release. Legacy non-conventional commit messages default to a patch release so existing changes are not silently omitted. Preview the next automatic version locally without modifying files:
+
+```bash
+./scripts/semantic_release.sh --dry-run
+```
+
+For an exceptional manual version override, `./scripts/bump_version.sh major|minor|patch` remains available. `build_app.sh` always validates the version files and writes them to `CFBundleShortVersionString` and `CFBundleVersion`.
 
 ---
 

@@ -1,0 +1,70 @@
+name: Semantic Release
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - VERSION
+      - BUILD_NUMBER
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: semantic-release-main
+  cancel-in-progress: true
+
+jobs:
+  release:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out complete history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calculate semantic version
+        id: version
+        run: ./scripts/semantic_release.sh --apply
+
+      - name: Build signed app bundle
+        if: steps.version.outputs.release_required == 'true'
+        run: ./build_app.sh
+
+      - name: Package app bundle
+        if: steps.version.outputs.release_required == 'true'
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent \
+            "build/AI Usage Tracker.app" \
+            "build/TokenBar-${RELEASE_VERSION}.zip"
+
+      - name: Commit version and create tag
+        if: steps.version.outputs.release_required == 'true'
+        env:
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add VERSION BUILD_NUMBER
+          git commit -m "chore(release): ${RELEASE_TAG} [skip ci]"
+          git tag -a "${RELEASE_TAG}" -m "TokenBar ${RELEASE_VERSION}"
+          git push origin HEAD:main --follow-tags
+
+      - name: Publish GitHub release
+        if: steps.version.outputs.release_required == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          gh release create "${RELEASE_TAG}" \
+            "build/TokenBar-${RELEASE_VERSION}.zip" \
+            --title "TokenBar ${RELEASE_VERSION}" \
+            --generate-notes

@@ -22,7 +22,7 @@ struct AntigravityStatusCard: View {
                             .font(.system(size: 13, weight: .bold, design: .rounded))
                     }
                     Spacer()
-                    Text(antigravity.hasLiveStatus ? antigravity.liveSource : "Offline")
+                    Text(antigravity.hasLiveStatus ? antigravity.liveSource : "Live Offline")
                         .font(.system(size: 9, weight: .bold, design: .monospaced))
                         .padding(.horizontal, 7)
                         .padding(.vertical, 3)
