@@ -9,10 +9,30 @@ struct ClaudeDetailView: View {
                 // Official Claude Subscription Status Card
                 ClaudeStatusCard(claude: manager.claudeData)
                 
+                Text("History below is from this Mac only. Account limits above include all devices using the same subscription.")
+                    .font(.system(size: 10))
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Text("Last \(manager.claudeData.historyDays) days · reconstructed from local sessions")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(.secondary)
+                if let updatedAt = manager.claudeData.historyUpdatedAt {
+                    Text("History updated \(updatedAt, style: .time)")
+                        .font(.system(size: 9))
+                        .foregroundColor(.secondary)
+                }
+                if !manager.claudeData.historyDiagnostic.isEmpty {
+                    Text(manager.claudeData.historyDiagnostic)
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
                 // Header Stats Grid
                 HStack(spacing: 10) {
                     DetailCard(
-                        title: "Total Messages",
+                        title: "Messages (30 days)",
                         value: "\(manager.claudeData.totalMessages)",
                         icon: "bubble.left.and.bubble.right.fill",
                         accentGradient: MacTheme.claudeGradient,
@@ -20,7 +40,7 @@ struct ClaudeDetailView: View {
                     )
                     
                     DetailCard(
-                        title: "Total Sessions",
+                        title: "Sessions (30 days)",
                         value: "\(manager.claudeData.totalSessions)",
                         icon: "square.stack.3d.up.fill",
                         accentGradient: LinearGradient(colors: [Color.purple, Color.pink], startPoint: .leading, endPoint: .trailing),

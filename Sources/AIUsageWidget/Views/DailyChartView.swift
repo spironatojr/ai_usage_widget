@@ -1,8 +1,12 @@
 import SwiftUI
 
+private final class DailyChartState: ObservableObject {
+    @Published var hoveredPoint: CombinedDailyPoint?
+}
+
 struct DailyChartView: View {
     @ObservedObject var manager: UsageManager
-    @State private var hoveredPoint: CombinedDailyPoint? = nil
+    @StateObject private var chartState = DailyChartState()
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -22,6 +26,11 @@ struct DailyChartView: View {
             }
             .padding(.horizontal, 2)
             
+            Text("Token history from this Mac only; remote sessions are not included.")
+                .font(.system(size: 10))
+                .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+
             if manager.combinedDailyPoints.isEmpty {
                 GlassCard {
                     Text("No activity recorded yet.")
@@ -37,7 +46,7 @@ struct DailyChartView: View {
                     VStack(spacing: 10) {
                         // Hover Details Box Header
                         ZStack {
-                            if let hovered = hoveredPoint {
+                            if let hovered = chartState.hoveredPoint {
                                 HStack(spacing: 8) {
                                     Text(hovered.formattedDate)
                                         .font(.system(size: 11, weight: .bold, design: .monospaced))
@@ -97,7 +106,7 @@ struct DailyChartView: View {
                         // Stacked Bar Chart
                         HStack(alignment: .bottom, spacing: 6) {
                             ForEach(manager.combinedDailyPoints) { point in
-                                let isHovered = hoveredPoint?.id == point.id
+                                let isHovered = chartState.hoveredPoint?.id == point.id
                                 
                                 VStack(spacing: 5) {
                                     GeometryReader { geo in
@@ -157,9 +166,9 @@ struct DailyChartView: View {
                                 .onHover { hovering in
                                     withAnimation(.easeInOut(duration: 0.15)) {
                                         if hovering {
-                                            hoveredPoint = point
-                                        } else if hoveredPoint?.id == point.id {
-                                            hoveredPoint = nil
+                                            chartState.hoveredPoint = point
+                                        } else if chartState.hoveredPoint?.id == point.id {
+                                            chartState.hoveredPoint = nil
                                         }
                                     }
                                 }

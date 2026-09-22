@@ -183,6 +183,10 @@ struct ModernProgressBar: View {
 
 // MARK: - Glass Segmented Control Button
 
+private final class GlassSegmentButtonState: ObservableObject {
+    @Published var isHovered = false
+}
+
 struct GlassSegmentButton: View {
     let title: String
     let icon: String
@@ -190,7 +194,7 @@ struct GlassSegmentButton: View {
     let isSelected: Bool
     let action: () -> Void
     
-    @State private var isHovered = false
+    @StateObject private var buttonState = GlassSegmentButtonState()
     
     var body: some View {
         Button(action: action) {
@@ -224,7 +228,7 @@ struct GlassSegmentButton: View {
                                     .strokeBorder(Color(NSColor.controlAccentColor).opacity(0.4), lineWidth: 0.75)
                             )
                             .shadow(color: Color(NSColor.controlAccentColor).opacity(0.15), radius: 4, x: 0, y: 2)
-                    } else if isHovered {
+                    } else if buttonState.isHovered {
                         RoundedRectangle(cornerRadius: 8, style: .continuous)
                             .fill(Color.primary.opacity(0.06))
                     }
@@ -234,7 +238,7 @@ struct GlassSegmentButton: View {
         .buttonStyle(.plain)
         .onHover { hovering in
             withAnimation(.easeInOut(duration: 0.15)) {
-                isHovered = hovering
+                buttonState.isHovered = hovering
             }
         }
     }

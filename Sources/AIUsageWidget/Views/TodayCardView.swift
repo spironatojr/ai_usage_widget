@@ -33,10 +33,6 @@ struct ClaudeStatusCard: View {
     let claude: ClaudeUsageData
     
     var body: some View {
-        let sessionPct = claude.sessionUsedPct
-        let weekAllPct = claude.weekAllModelsPct
-        let weekFablePct = claude.weekFablePct
-        
         GlowingBrandCard(
             brandGradient: MacTheme.claudeGradient,
             borderColor: MacTheme.claudePrimary,
@@ -74,50 +70,55 @@ struct ClaudeStatusCard: View {
                         )
                 }
                 
-                // Current Session
-                if claude.hasLiveStatus {
-                    ProgressBarRow(
-                        label: "Current session",
-                        valueText: String(format: "%.0f%% used", sessionPct),
-                        progressPct: sessionPct,
-                        resetText: claude.sessionReset.isEmpty ? nil : "resets \(claude.sessionReset)",
-                        accentGradient: progressGradient(usedPct: sessionPct)
-                    )
-                    
+                Text("Account-wide limits · all devices")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(.secondary)
+
+                quotaRow("5-hour window", percentage: claude.sessionUsedPct, reset: claude.sessionReset)
+                Divider().opacity(0.2)
+                quotaRow("Current week (all models)", percentage: claude.weekAllModelsPct, reset: claude.weekAllModelsReset)
+
+                if let percentage = claude.weekFablePct {
                     Divider().opacity(0.2)
-                    
-                    // Current Week (All Models)
-                    ProgressBarRow(
-                        label: "Current week (all models)",
-                        valueText: String(format: "%.0f%% used", weekAllPct),
-                        progressPct: weekAllPct,
-                        resetText: claude.weekAllModelsReset.isEmpty ? nil : "resets \(claude.weekAllModelsReset)",
-                        accentGradient: progressGradient(usedPct: weekAllPct)
-                    )
-                    
-                    Divider().opacity(0.2)
-                    
-                    // Current Week (Fable)
-                    ProgressBarRow(
-                        label: "Current week (\(claude.weekModelLabel))",
-                        valueText: String(format: "%.0f%% used", weekFablePct),
-                        progressPct: weekFablePct,
-                        resetText: claude.weekFableReset.isEmpty ? nil : "resets \(claude.weekFableReset)",
-                        accentGradient: progressGradient(usedPct: weekFablePct)
-                    )
-                } else {
-                    HStack {
-                        Text("Session limits")
-                            .font(.system(size: 11, weight: .semibold))
-                        Spacer()
-                        Text("Local session expired")
-                            .font(.system(size: 9, weight: .medium))
-                            .foregroundColor(.secondary)
-                    }
+                    quotaRow("Current week (\(claude.weekModelLabel))", percentage: percentage, reset: claude.weekFableReset)
+                }
+
+                if !claude.liveError.isEmpty {
+                    Text(claude.liveError)
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                if let fetchedAt = claude.quotaFetchedAt {
+                    Text("Updated \(fetchedAt, style: .time)")
+                        .font(.system(size: 9))
+                        .foregroundColor(.secondary)
                 }
             }
         }
     }
+
+    @ViewBuilder
+    private func quotaRow(_ label: String, percentage: Double?, reset: String) -> some View {
+        if let percentage {
+            ProgressBarRow(
+                label: label,
+                valueText: String(format: "%.0f%% used", percentage),
+                progressPct: percentage,
+                resetText: reset.isEmpty ? nil : "resets \(reset)",
+                accentGradient: progressGradient(usedPct: percentage)
+            )
+        } else {
+            HStack {
+                Text(label).font(.system(size: 11, weight: .semibold))
+                Spacer()
+                Text("Unavailable")
+                    .font(.system(size: 10))
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+
 }
 
 // MARK: - Codex Status Card

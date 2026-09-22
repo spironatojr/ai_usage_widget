@@ -9,10 +9,21 @@ struct CodexDetailView: View {
                 // Official Codex Status Card
                 CodexStatusCard(codex: manager.codexData)
                 
-                // Lifetime Summary Cards Grid
+                Text("Local history · last 30 days · usage dated by event, excluding cache reads")
+                    .font(.system(size: 10))
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                if !manager.codexData.historyDiagnostic.isEmpty {
+                    Text(manager.codexData.historyDiagnostic)
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                // Local 30-day Summary Cards Grid
                 HStack(spacing: 8) {
                     DetailCard(
-                        title: "Total Tokens",
+                        title: "Tokens (30 days)",
                         value: UsageManager.formatTokens(manager.codexData.totalTokens),
                         icon: "bolt.ring.closed",
                         accentGradient: MacTheme.codexGradient,
@@ -20,7 +31,7 @@ struct CodexDetailView: View {
                     )
                     
                     DetailCard(
-                        title: "Sessions",
+                        title: "Sessions (30 days)",
                         value: "\(manager.codexData.totalSessions)",
                         icon: "square.stack.3d.up.fill",
                         accentGradient: LinearGradient(colors: [Color.teal, Color.cyan], startPoint: .leading, endPoint: .trailing),

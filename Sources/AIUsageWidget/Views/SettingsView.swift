@@ -78,15 +78,15 @@ struct SettingsView: View {
                             .tracking(0.5)
 
                         SourceRow(
-                            name: "Codex SQLite Database",
-                            path: "~/.codex/state_5.sqlite",
-                            exists: sourceExists("~/.codex/state_5.sqlite")
+                            name: "Codex Local Sessions",
+                            path: "~/.codex/sessions",
+                            exists: sourceExists("~/.codex/sessions")
                         )
 
                         SourceRow(
-                            name: "Claude Stats Cache",
-                            path: "~/.claude/stats-cache.json",
-                            exists: sourceExists("~/.claude/stats-cache.json")
+                            name: "Claude Local Sessions",
+                            path: "~/.claude/projects",
+                            exists: sourceExists("~/.claude/projects")
                         )
 
                         SourceRow(

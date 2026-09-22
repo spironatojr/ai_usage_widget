@@ -161,7 +161,6 @@ final class UsageManagerTests: XCTestCase {
 
     func testMenuBarUsesWeeklyPercentUsedForBothProviders() {
         var claude = ClaudeUsageData()
-        claude.hasLiveStatus = true
         claude.sessionUsedPct = 81
         claude.weekAllModelsPct = 36
 

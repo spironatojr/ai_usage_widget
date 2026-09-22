@@ -11,6 +11,7 @@ class UsageManager: ObservableObject {
     @Published var combinedDailyPoints: [CombinedDailyPoint] = []
     @Published var lastRefreshed: Date = Date()
     @Published var isRefreshing: Bool = false
+    @Published private(set) var hasRefreshed = false
     @Published var selectedTab: AppTab = .overview
     
     @Published var refreshIntervalSeconds: Double = 60.0 {
@@ -67,6 +68,7 @@ class UsageManager: ObservableObject {
                 }
                 self?.combinedDailyPoints = combined
                 self?.lastRefreshed = Date()
+                self?.hasRefreshed = true
                 self?.isRefreshing = false
             }
         }
@@ -150,12 +152,8 @@ class UsageManager: ObservableObject {
     }
 
     static func claudeWeeklyMenuBarText(for data: ClaudeUsageData) -> String? {
-        if data.hasLiveStatus {
-            return "\(Int(round(data.weekAllModelsPct)))%"
-        } else if data.grandTotalTokens > 0 {
-            return "Expired"
-        }
-        return nil
+        guard let weekly = data.weekAllModelsPct else { return nil }
+        return "\(Int(round(weekly)))%"
     }
 
     static func codexWeeklyMenuBarText(for data: CodexUsageData) -> String? {
@@ -168,9 +166,21 @@ class UsageManager: ObservableObject {
         return "\(Int(round(weekly)))%"
     }
     
+    static func localTokenText(claude: ClaudeUsageData, codex: CodexUsageData, antigravity: AntigravityUsageData) -> String {
+        let total = claude.todayTokens + codex.todayTokens + antigravity.todayTokens
+        let available = claude.historyIsAvailable || codex.historyIsAvailable || antigravity.historyIsAvailable
+        let partial = claude.historyIsPartial || codex.historyIsPartial || antigravity.historyIsPartial
+        guard available else { return "—" }
+        if partial { return total > 0 ? "\(formatTokens(total))+" : "—" }
+        return formatTokens(total)
+    }
+
+    private var localTokensText: String {
+        hasRefreshed ? Self.localTokenText(claude: claudeData, codex: codexData, antigravity: antigravityData) : "…"
+    }
+
     var menuBarImage: NSImage {
-        let total = codexData.todayTokens + claudeData.todayTokens + antigravityData.todayTokens
-        let totalStr = Self.formatTokens(total)
+        let totalStr = localTokensText
         let claudeText = Self.claudeWeeklyMenuBarText(for: claudeData)
         let codexText = Self.codexWeeklyMenuBarText(for: codexData)
         let antigravityText = Self.antigravityWeeklyMenuBarText(for: antigravityData)
@@ -185,8 +195,7 @@ class UsageManager: ObservableObject {
     }
     
     var menuBarTitle: String {
-        let total = codexData.todayTokens + claudeData.todayTokens + antigravityData.todayTokens
-        let tokensStr = "⚡️ \(Self.formatTokens(total))"
+        let tokensStr = "⚡️ \(localTokensText)"
         
         guard showQuotaInMenuBar else {
             return tokensStr

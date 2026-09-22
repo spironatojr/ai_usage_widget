@@ -32,12 +32,16 @@ enum AppTab: String, CaseIterable, Identifiable {
     }
 }
 
+private final class HeaderViewState: ObservableObject {
+    @Published var rotationAngle: Double = 0
+    @Published var isRefreshHovered = false
+}
+
 struct HeaderView: View {
     @ObservedObject var manager: UsageManager
     @Binding var selectedTab: AppTab
     
-    @State private var rotationAngle: Double = 0
-    @State private var isRefreshHovered = false
+    @StateObject private var headerState = HeaderViewState()
     
     var body: some View {
         VStack(spacing: 10) {
@@ -87,7 +91,7 @@ struct HeaderView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "arrow.clockwise")
                             .font(.system(size: 10, weight: .bold))
-                            .rotationEffect(Angle(degrees: rotationAngle))
+                            .rotationEffect(Angle(degrees: headerState.rotationAngle))
                         
                         Text(manager.isRefreshing ? "Updating..." : "Refresh")
                             .font(.system(size: 9.5, weight: .semibold))
@@ -95,10 +99,10 @@ struct HeaderView: View {
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4.5)
-                    .foregroundColor(isRefreshHovered ? .primary : .secondary)
+                    .foregroundColor(headerState.isRefreshHovered ? .primary : .secondary)
                     .background(
                         Capsule()
-                            .fill(Color.primary.opacity(isRefreshHovered ? 0.1 : 0.05))
+                            .fill(Color.primary.opacity(headerState.isRefreshHovered ? 0.1 : 0.05))
                     )
                     .overlay(
                         Capsule()
@@ -109,7 +113,7 @@ struct HeaderView: View {
                 .disabled(manager.isRefreshing)
                 .onHover { hovering in
                     withAnimation(.easeInOut(duration: 0.15)) {
-                        isRefreshHovered = hovering
+                        headerState.isRefreshHovered = hovering
                     }
                 }
             }
@@ -153,7 +157,7 @@ struct HeaderView: View {
     
     private func startSpinning() {
         withAnimation(.linear(duration: 0.8)) {
-            rotationAngle += 360
+            headerState.rotationAngle += 360
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
             if manager.isRefreshing {

@@ -26,6 +26,9 @@ struct CodexUsageData {
     var modelBreakdown: [CodexModelUsage] = []
     var totalSessions: Int = 0
     var totalTokens: Int64 = 0
+    var historyIsAvailable = false
+    var historyIsPartial = false
+    var historyDiagnostic = ""
     
     // Official /status Attributes
     var accountEmail: String = ""

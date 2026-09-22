@@ -1,26 +1,25 @@
 import Foundation
-import SQLite3
 
 class CodexDataReader {
     static let shared = CodexDataReader()
     
-    private let sqlitePath: String
+    private let historyReader: CodexHistoryReader
     private let authFilePath: String
     private let configFilePath: String
     private let sessionsDirectoryPath: String
     
     init(customPath: String? = nil) {
         if let path = customPath {
-            self.sqlitePath = path
             self.authFilePath = (path as NSString).deletingLastPathComponent + "/auth.json"
             self.configFilePath = (path as NSString).deletingLastPathComponent + "/config.toml"
             self.sessionsDirectoryPath = (path as NSString).deletingLastPathComponent + "/sessions"
         } else {
-            self.sqlitePath = NSString(string: "~/.codex/state_5.sqlite").expandingTildeInPath
             self.authFilePath = NSString(string: "~/.codex/auth.json").expandingTildeInPath
             self.configFilePath = NSString(string: "~/.codex/config.toml").expandingTildeInPath
             self.sessionsDirectoryPath = NSString(string: "~/.codex/sessions").expandingTildeInPath
         }
+        let sessions = URL(fileURLWithPath: sessionsDirectoryPath)
+        self.historyReader = CodexHistoryReader(roots: [sessions, sessions.deletingLastPathComponent().appendingPathComponent("archived_sessions")])
     }
     
     func fetchUsageData() -> CodexUsageData {
@@ -74,99 +73,8 @@ class CodexDataReader {
             applyLatestRateLimits(to: &data)
         }
 
-        // 4. Read SQLite Database state_5.sqlite
-        guard FileManager.default.fileExists(atPath: sqlitePath) else {
-            return data
-        }
-        
-        var db: OpaquePointer?
-        let openResult = sqlite3_open_v2(
-            sqlitePath,
-            &db,
-            SQLITE_OPEN_READONLY | SQLITE_OPEN_FULLMUTEX,
-            nil
-        )
-        
-        guard openResult == SQLITE_OK, let db = db else {
-            if let db = db { sqlite3_close(db) }
-            return data
-        }
-        
-        defer {
-            sqlite3_close(db)
-        }
-        
-        // Daily Usage
-        let dailyQuery = """
-            SELECT date(created_at, 'unixepoch', 'localtime') as day,
-                   COUNT(*) as session_count,
-                   SUM(tokens_used) as total_tokens
-            FROM threads
-            GROUP BY day
-            ORDER BY day DESC;
-        """
-        var stmt: OpaquePointer?
-        if sqlite3_prepare_v2(db, dailyQuery, -1, &stmt, nil) == SQLITE_OK {
-            var list: [CodexDailyUsage] = []
-            while sqlite3_step(stmt) == SQLITE_ROW {
-                if let dayCStr = sqlite3_column_text(stmt, 0) {
-                    let day = String(cString: dayCStr)
-                    let count = Int(sqlite3_column_int(stmt, 1))
-                    let tokens = sqlite3_column_int64(stmt, 2)
-                    list.append(CodexDailyUsage(date: day, sessionCount: count, tokensUsed: tokens))
-                }
-            }
-            data.dailyUsage = list
-            sqlite3_finalize(stmt)
-        }
-        
-        // Total Sessions & Tokens
-        let totalQuery = "SELECT COUNT(*), SUM(tokens_used) FROM threads;"
-        if sqlite3_prepare_v2(db, totalQuery, -1, &stmt, nil) == SQLITE_OK {
-            if sqlite3_step(stmt) == SQLITE_ROW {
-                data.totalSessions = Int(sqlite3_column_int(stmt, 0))
-                data.totalTokens = sqlite3_column_int64(stmt, 1)
-            }
-            sqlite3_finalize(stmt)
-        }
-        
-        // 1-Week Window Tokens
-        let sevenDaysAgoInt = Int64(Date().timeIntervalSince1970 - (7 * 86400))
-        let query7d = """
-            SELECT SUM(tokens_used), COUNT(*)
-            FROM threads
-            WHERE created_at >= \(sevenDaysAgoInt);
-        """
-        if sqlite3_prepare_v2(db, query7d, -1, &stmt, nil) == SQLITE_OK {
-            if sqlite3_step(stmt) == SQLITE_ROW {
-                data.tokensIn1WeekWindow = sqlite3_column_int64(stmt, 0)
-                data.sessionsIn1WeekWindow = Int(sqlite3_column_int(stmt, 1))
-            }
-            sqlite3_finalize(stmt)
-        }
-        
-        // Model Breakdown
-        let modelQuery = """
-            SELECT COALESCE(NULLIF(model, ''), 'unknown') as model_name,
-                   COUNT(*) as session_count,
-                   SUM(tokens_used) as total_tokens
-            FROM threads
-            GROUP BY model_name
-            ORDER BY total_tokens DESC;
-        """
-        if sqlite3_prepare_v2(db, modelQuery, -1, &stmt, nil) == SQLITE_OK {
-            var models: [CodexModelUsage] = []
-            while sqlite3_step(stmt) == SQLITE_ROW {
-                if let nameCStr = sqlite3_column_text(stmt, 0) {
-                    let name = String(cString: nameCStr)
-                    let count = Int(sqlite3_column_int(stmt, 1))
-                    let tokens = sqlite3_column_int64(stmt, 2)
-                    models.append(CodexModelUsage(modelName: name, sessionCount: count, totalTokens: tokens))
-                }
-            }
-            data.modelBreakdown = models
-            sqlite3_finalize(stmt)
-        }
+        // Attribute usage to token-event timestamps, including sessions spanning midnight.
+        historyReader.apply(to: &data)
 
         return data
     }

@@ -107,7 +107,7 @@ class BrandAssets {
         
         let textAttrs: [NSAttributedString.Key: Any] = [
             .font: font,
-            .foregroundColor: NSColor.labelColor
+            .foregroundColor: NSColor.white
         ]
         
         var totalWidth: CGFloat = 0
@@ -146,7 +146,7 @@ class BrandAssets {
                 if img == boltImg {
                     let tinted = NSImage(size: elem.imgSize)
                     tinted.lockFocus()
-                    NSColor.labelColor.set()
+                    NSColor.white.set()
                     let symbolRect = NSRect(origin: .zero, size: elem.imgSize)
                     img.draw(in: symbolRect, from: .zero, operation: .sourceOver, fraction: 1.0)
                     symbolRect.fill(using: .sourceIn)

@@ -41,17 +41,25 @@ struct ClaudeUsageData {
     var modelUsage: [ClaudeModelDetail] = []
     var totalSessions: Int = 0
     var totalMessages: Int = 0
-    var lastComputedDate: String = ""
+    let historyDays = 30
+    var historyUpdatedAt: Date?
+    var historyDiagnostic = ""
+    var historyIsAvailable = false
+    var historyIsPartial = false
     
     // Official Live Subscription Quota Status (from claude -p /usage)
-    var sessionUsedPct: Double = 0.0
+    var sessionUsedPct: Double?
     var sessionReset: String = ""
-    var weekAllModelsPct: Double = 0.0
+    var weekAllModelsPct: Double?
     var weekAllModelsReset: String = ""
-    var weekFablePct: Double = 0.0
+    var weekFablePct: Double?
     var weekFableReset: String = ""
     var weekModelLabel: String = "Model-specific weekly limit"
-    var hasLiveStatus: Bool = false
+    var liveError = "Account limits unavailable"
+    var quotaFetchedAt: Date?
+    var hasLiveStatus: Bool {
+        sessionUsedPct != nil || weekAllModelsPct != nil || weekFablePct != nil
+    }
     
     var todayActivity: ClaudeDailyActivity? {
         let formatter = DateFormatter()

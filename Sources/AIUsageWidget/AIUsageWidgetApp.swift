@@ -9,6 +9,7 @@ struct AIUsageWidgetApp: App {
             MainPopoverView()
         } label: {
             Image(nsImage: manager.menuBarImage)
+                .help("Tokens: today on this Mac, excluding cache reads. + means partial history; — means unavailable. Claude percentage: account-wide weekly usage.")
         }
         .menuBarExtraStyle(.window)
     }

@@ -48,6 +48,7 @@ struct AntigravityUsageData {
     var modelUsage: [AntigravityModelUsage] = []
     var totalSessions = 0
     var totalTokens: Int64 = 0
+    var historyIsAvailable = false
     var historyIsPartial = false
     var historyDiagnostic = ""
 

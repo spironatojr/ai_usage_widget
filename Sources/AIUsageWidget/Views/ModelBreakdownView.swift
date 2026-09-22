@@ -65,6 +65,10 @@ struct ModelBreakdownView: View {
                 }
                 .padding(.horizontal, 2)
                 
+                Text("Model totals from this Mac only · Claude & Codex: last 30 days")
+                    .font(.system(size: 10))
+                    .foregroundColor(.secondary)
+
                 let grandTotal = max(combinedModels.map { $0.tokens }.reduce(0, +), 1)
                 
                 VStack(spacing: 8) {

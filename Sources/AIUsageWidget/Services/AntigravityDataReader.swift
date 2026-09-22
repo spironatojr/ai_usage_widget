@@ -251,9 +251,16 @@ final class AntigravityDataReader {
                 at: URL(fileURLWithPath: root),
                 includingPropertiesForKeys: [.isRegularFileKey],
                 options: [.skipsHiddenFiles]
-            ) else { continue }
+            ) else {
+                if FileManager.default.fileExists(atPath: root) {
+                    rejected += 1
+                    rejectionReasons["unreadable directory", default: 0] += 1
+                }
+                continue
+            }
 
-            for url in files.filter({ $0.pathExtension == "db" }).prefix(500) {
+            let databases = files.filter { $0.pathExtension == "db" }
+            for url in databases {
                 let sessionID = url.deletingPathExtension().lastPathComponent
                 guard seenSessions.insert(sessionID).inserted else { continue }
                 databaseCount += 1
@@ -292,6 +299,7 @@ final class AntigravityDataReader {
         }.sorted { $0.totalTokens > $1.totalTokens }
         data.totalSessions = Set(records.map(\.sessionID)).count
         data.totalTokens = records.reduce(0) { $0 + $1.input + $1.output }
+        data.historyIsAvailable = databaseCount > 0
         data.historyIsPartial = rejected > 0
         if databaseCount == 0 {
             data.historyDiagnostic = "No local Antigravity conversations found"

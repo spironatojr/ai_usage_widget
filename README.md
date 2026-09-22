@@ -16,8 +16,8 @@ A lightweight, local macOS menu bar app for tracking real-time rate limits, usag
 
 ## Features
 
-- **Claude Code Limits**: Reads live session percentages, weekly quotas, and reset countdowns by querying the local `claude` CLI (`-p /usage`), combined with historical usage metrics from `~/.claude/stats-cache.json`.
-- **OpenAI Codex Limits**: Queries live account status and rate limit reset credits via `codex app-server --stdio` JSON-RPC (with fallback to `~/.codex/sessions/*.jsonl`), extracts subscription tier from `~/.codex/auth.json`, and parses historical 14-day token breakdown per model from `~/.codex/state_5.sqlite`.
+- **Claude Code Limits**: Reads live session percentages, weekly quotas, and reset countdowns by querying the local `claude` CLI (`--safe-mode -p /usage`), combined with the last 30 days of local session history from `~/.claude/projects/`.
+- **OpenAI Codex Limits**: Queries live account status and rate limit reset credits via `codex app-server --stdio` JSON-RPC (with fallback to `~/.codex/sessions/*.jsonl`), extracts subscription tier from `~/.codex/auth.json`, and reconstructs daily and per-model usage from local timestamped session events.
 - **Google Antigravity Limits**: Reads model-family 5-hour and weekly quotas from the local service of a running Antigravity desktop app or IDE, and parses local conversation databases under `~/.gemini` for token history.
 - **14-Day Activity Visualization**: Stacked daily token chart comparing Claude Code, Codex, and Antigravity.
 - **Model Breakdown**: Provider-qualified token totals for every locally observed model.
@@ -42,18 +42,22 @@ A lightweight, local macOS menu bar app for tracking real-time rate limits, usag
 
 ---
 
+The menu bar's ⚡ value is today's recorded local tokens across providers, excluding cache reads. `…` means the first refresh is pending, `—` means unavailable, and a trailing `+` means the total is partial. Subscription percentages are independent of these local totals.
+
 ## How It Works
 
 TokenBar inspects local CLI environment state and local application stores:
 
 1. **Claude Code Integration (`ClaudeDataReader.swift`)**
-   - **Live Status**: Spawns `claude -p /usage --output-format json` in a background subprocess (15s timeout) to extract active 5-hour session and weekly rate limit percentages.
-   - **History**: Reads `~/.claude/stats-cache.json` for historical daily message counts, session numbers, tool call counts, and per-model input/output/cache token stats.
+   - **Live Status**: Spawns `claude --safe-mode -p /usage --output-format json` in a background subprocess (15s timeout) to extract active 5-hour session and weekly rate limit percentages.
+   - **Scope**: Subscription limits cover the same account across devices, including SSH hosts; no remote-host configuration is needed. Missing limits are shown as unavailable, never inferred as zero. Refresh uses a Claude Code version supporting `--safe-mode` to disable user customizations and hooks while preserving login.
+   - **Local history**: Tokens, model totals, messages, and charts reflect this Mac only. Claude history is rebuilt for the last 30 days directly from local transcripts, without relying on `stats-cache.json`. The activity chart displays the latest 14 days.
+   - **History**: Reads JSONL files under `~/.claude/projects/` in bounded chunks. Unchanged files reuse in-memory parsed metadata; changed files are reread and removed files are dropped on the next refresh. Duplicate message IDs and streaming usage snapshots are consolidated across files. Tokens include input, output, and cache creation; cache reads are displayed separately and excluded from totals. Session counts exclude subagent sidechains. No conversations or credentials are copied, and the original files are never modified. Deleted transcripts cannot be recovered from the old aggregate cache.
 
 2. **OpenAI Codex Integration (`CodexDataReader.swift`)**
-   - **Live Status**: Runs `codex app-server --stdio` over JSON-RPC to invoke `account/rateLimits/read` for active window limits and reset credits. If the app-server process is inactive, falls back to parsing recent `~/.codex/sessions/*.jsonl` files.
+   - **Live Status**: Runs `codex app-server --stdio` over JSON-RPC to invoke `account/rateLimits/read` for active window limits and reset credits. If the app-server process is inactive, falls back to reading recent local `~/.codex/sessions/*.jsonl` events.
    - **Account & Config**: Decodes user email and plan tier (`chatgpt_plan_type`) from JWT tokens in `~/.codex/auth.json`, and reads configured active model from `~/.codex/config.toml`.
-   - **Database**: Opens `~/.codex/state_5.sqlite` using SQLite3 in read-only mode (`threads` table) to calculate total sessions, 7-day token totals, and historical model token usage.
+   - **History**: Reads `~/.codex/sessions/` and `~/.codex/archived_sessions/` incrementally. Cumulative token snapshots are converted to increments and assigned to each event's local date and active model, so sessions spanning midnight count on both days. Repeated snapshots and copied session files are deduplicated. Totals cover the last 30 days; the seven-day window uses event dates too. Cache reads are excluded, consistently with Claude. Missing baselines or unreadable records mark the history as partial instead of assigning lifetime usage to today.
 
 3. **Google Antigravity Integration (`AntigravityDataReader.swift`)**
    - **Live Status**: Connects to the authenticated localhost service of an already-running Antigravity app or IDE. Refresh never launches `agy`, which can open a browser login and steal focus when authentication is needed. It does not copy or persist local credentials.
