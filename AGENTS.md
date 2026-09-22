@@ -35,6 +35,10 @@ Use XCTest with `test`-prefixed methods describing observable behavior. Add regr
 
 History uses concise imperative subjects, such as `Add Google Antigravity usage support`; follow that convention. Keep changes focused. Include a PR description, relevant issue links, verification commands/results, and screenshots for UI changes.
 
+## Version & Release Workflow
+
+For every implemented app change, complete the version and release flow before handing it off. Use a release-triggering commit subject, push or merge the change into `main`, and verify that the Semantic Release workflow creates the next SemVer tag and GitHub release and increments `BUILD_NUMBER`. Then sync the release commit locally, run `./build_app.sh`, restart `build/AI Usage Tracker.app`, and verify the running bundle has the new version and build. See the automated versioning section in `README.md` for commit types and commands. If publishing is blocked, report the blocker and the version that is actually running.
+
 ## Security & Configuration
 
 Keep provider databases read-only. Never commit authentication files, tokens, or personal session logs from `~/.claude`, `~/.codex`, or `~/.gemini`. Use sanitized fixtures and preserve the app’s local-data architecture.
