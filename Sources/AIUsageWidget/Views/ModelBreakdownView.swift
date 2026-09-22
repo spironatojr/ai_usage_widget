@@ -30,7 +30,7 @@ struct ModelBreakdownView: View {
         for m in manager.claudeData.modelUsage {
             items.append(CombinedModelItem(
                 modelID: m.modelName,
-                modelName: m.displayName,
+                modelName: m.modelName,
                 agent: "Claude",
                 tokens: m.totalTokens,
                 gradient: MacTheme.claudeGradient,

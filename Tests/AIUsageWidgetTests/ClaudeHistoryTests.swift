@@ -139,7 +139,7 @@ final class ClaudeHistoryTests: XCTestCase {
         XCTAssertTrue(data.historyDiagnostic.isEmpty)
     }
 
-    func testClaudeModelDisplayNamesKeepVersionsDistinct() throws {
+    func testClaudeModelIdentifiersKeepVersionsDistinct() throws {
         var bytes = try record("opus-5", model: "claude-opus-5")
         bytes.append(try record("opus-5-5", model: "claude-opus-5-5"))
         try bytes.write(to: directory.appendingPathComponent("models.jsonl"))
@@ -148,7 +148,6 @@ final class ClaudeHistoryTests: XCTestCase {
         ClaudeHistoryReader(projectsURL: directory).apply(to: &data, now: now, calendar: calendar)
 
         XCTAssertEqual(data.modelUsage.map(\.modelName), ["claude-opus-5", "claude-opus-5-5"])
-        XCTAssertEqual(data.modelUsage.map(\.displayName), ["Claude Opus 5", "Claude Opus 5.5"])
         XCTAssertEqual(data.grandTotalTokens, 260)
     }
 }

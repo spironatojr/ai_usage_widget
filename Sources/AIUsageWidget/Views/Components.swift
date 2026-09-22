@@ -47,7 +47,7 @@ struct ClaudeModelRow: View {
         GlassCard(cornerRadius: 10, padding: 8) {
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
-                    Text(model.displayName)
+                    Text(model.modelName)
                         .font(.system(size: 11, weight: .bold))
                         .foregroundColor(MacTheme.textPrimary)
                     
