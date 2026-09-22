@@ -25,6 +25,22 @@ struct ClaudeModelDetail: Identifiable {
     let outputTokens: Int64
     let cacheReadInputTokens: Int64
     let cacheCreationInputTokens: Int64
+
+    var displayName: String { Self.displayName(for: modelName) }
+
+    static func displayName(for modelID: String) -> String {
+        let parts = modelID.split(separator: "-", omittingEmptySubsequences: false)
+        guard (3...4).contains(parts.count), parts[0] == "claude",
+              ["opus", "sonnet", "haiku", "fable", "mythos"].contains(parts[1]),
+              let major = Int(parts[2]), major > 0 else { return modelID }
+
+        var version = String(major)
+        if parts.count == 4 {
+            guard let minor = Int(parts[3]), minor >= 0 else { return modelID }
+            version += ".\(minor)"
+        }
+        return "Claude \(parts[1].capitalized) \(version)"
+    }
     
     // Excludes cacheReadInputTokens: cache reads repeat on nearly every
     // turn as prior context gets replayed, so counting them here would

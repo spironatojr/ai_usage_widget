@@ -1,7 +1,8 @@
 import SwiftUI
 
 struct CombinedModelItem: Identifiable {
-    var id: String { "\(agent):\(modelName)" }
+    var id: String { "\(agent):\(modelID)" }
+    let modelID: String
     let modelName: String
     let agent: String
     let tokens: Int64
@@ -17,6 +18,7 @@ struct ModelBreakdownView: View {
         
         for m in manager.codexData.modelBreakdown {
             items.append(CombinedModelItem(
+                modelID: m.modelName,
                 modelName: m.modelName,
                 agent: "Codex",
                 tokens: m.totalTokens,
@@ -27,7 +29,8 @@ struct ModelBreakdownView: View {
         
         for m in manager.claudeData.modelUsage {
             items.append(CombinedModelItem(
-                modelName: m.modelName,
+                modelID: m.modelName,
+                modelName: m.displayName,
                 agent: "Claude",
                 tokens: m.totalTokens,
                 gradient: MacTheme.claudeGradient,
@@ -37,6 +40,7 @@ struct ModelBreakdownView: View {
 
         for m in manager.antigravityData.modelUsage {
             items.append(CombinedModelItem(
+                modelID: m.modelName,
                 modelName: m.modelName,
                 agent: "Antigravity",
                 tokens: m.totalTokens,
