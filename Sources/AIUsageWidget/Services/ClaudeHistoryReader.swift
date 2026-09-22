@@ -203,6 +203,8 @@ final class ClaudeHistoryReader {
               let timestamp = fractional.date(from: rawTimestamp) ?? wholeSeconds.date(from: rawTimestamp),
               let message = root["message"] as? [String: Any] else { skipped += 1; return }
         guard timestamp >= start else { return }
+        // Claude Code uses this marker for internal assistant records, not a model response.
+        guard type != "assistant" || message["model"] as? String != "<synthetic>" else { return }
         let messageID = type == "assistant" ? message["id"] as? String : nil
         let id = messageID ?? (root["uuid"] as? String) ?? {
             let canonical = (try? JSONSerialization.data(withJSONObject: root, options: [.sortedKeys])) ?? line

@@ -20,14 +20,15 @@ final class ClaudeHistoryTests: XCTestCase {
     }
 
     private func record(_ id: String, date: String = "2026-09-21T12:00:00Z", output: Int = 10,
+                        model: String = "test-model", session: String = "session1",
                         sidechain: Bool = false, includeID: Bool = true) throws -> Data {
         var message: [String: Any] = [
-            "model": "test-model", "usage": ["input_tokens": 100, "output_tokens": output,
+            "model": model, "usage": ["input_tokens": 100, "output_tokens": output,
                 "cache_creation_input_tokens": 20, "cache_read_input_tokens": 999],
             "content": [["type": "tool_use", "id": "tool1", "name": "Read"]]
         ]
         if includeID { message["id"] = id }
-        let root: [String: Any] = ["type": "assistant", "timestamp": date, "sessionId": "session1",
+        let root: [String: Any] = ["type": "assistant", "timestamp": date, "sessionId": session,
                                   "isSidechain": sidechain, "message": message]
         var result = try JSONSerialization.data(withJSONObject: root, options: [.sortedKeys])
         result.append(10)
@@ -119,5 +120,22 @@ final class ClaudeHistoryTests: XCTestCase {
         ClaudeHistoryReader(projectsURL: directory).apply(to: &data, now: now, calendar: calendar)
         XCTAssertEqual(data.grandTotalTokens, 130)
         XCTAssertTrue(data.historyDiagnostic.contains("1 skipped records"))
+    }
+
+    func testSyntheticAssistantRecordDoesNotCountAsLocalUsage() throws {
+        var bytes = try record("internal", model: "<synthetic>", session: "internal-session")
+        bytes.append(try record("real"))
+        try bytes.write(to: directory.appendingPathComponent("session.jsonl"))
+
+        var data = ClaudeUsageData()
+        ClaudeHistoryReader(projectsURL: directory).apply(to: &data, now: now, calendar: calendar)
+
+        XCTAssertEqual(data.totalMessages, 1)
+        XCTAssertEqual(data.totalSessions, 1)
+        XCTAssertEqual(data.grandTotalTokens, 130)
+        XCTAssertEqual(data.modelUsage.map(\.modelName), ["test-model"])
+        XCTAssertEqual(data.dailyActivity.first?.messageCount, 1)
+        XCTAssertEqual(data.dailyActivity.first?.toolCallCount, 1)
+        XCTAssertTrue(data.historyDiagnostic.isEmpty)
     }
 }
